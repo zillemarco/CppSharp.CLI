@@ -6,7 +6,6 @@ include("Helpers")
 
 solution "CSharpGenerator"
 
-  location ("build")
   configurations { "Debug", "Release" }
   architecture "x86_64"
 
@@ -25,7 +24,8 @@ solution "CSharpGenerator"
   symbols "On"
 
   local action = _ACTION or ""
-  location (action)
+  
+  location ("build/" .. action)
 
   objdir (path.join("./", action, "obj"))
   targetdir (path.join("./", action, "lib", "%{cfg.buildcfg}"))
@@ -45,7 +45,7 @@ solution "CSharpGenerator"
     kind "ConsoleApp"
     language "C#"
     dotnetframework "4.6"
-    location ("build/" .. _ACTION)
+    location ("build/" .. action)
 
     files { "src/*.cs" }
 
