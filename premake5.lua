@@ -2,7 +2,8 @@
 -- It defines the common build settings that all the projects share
 -- and calls the build scripts of all the sub-projects.
 
-include("Helpers")
+dofile "CppSharp/build/Helpers.lua"
+dofile "CppSharp/build/LLVM.lua"
 
 solution "CSharpGenerator"
 
@@ -27,15 +28,17 @@ solution "CSharpGenerator"
   
   location ("build/" .. action)
 
-  objdir (path.join("./", action, "obj"))
-  targetdir (path.join("./", action, "lib", "%{cfg.buildcfg}"))
+  objdir (path.join("./build/", action, "obj"))
+  targetdir (path.join("./build/", action, "lib", "%{cfg.buildcfg}"))
 
   startproject "Generator"
 
   group "CppSharp"
     include("CppSharp/src/Core")
     include("CppSharp/src/AST")
-    include("CppSharp/src/CppParser/Bindings/CSharp")
+    include("CppSharp/src/CppParser")
+    include("CppSharp/src/CppParser/Bindings")
+    include("CppSharp/src/CppParser/ParserGen")
     include("CppSharp/src/Parser")
     include("CppSharp/src/Generator")
     include("CppSharp/src/Runtime")
@@ -46,8 +49,11 @@ solution "CSharpGenerator"
     language "C#"
     dotnetframework "4.6"
     location ("build/" .. action)
+    
+    objdir (path.join("./build/", action, "obj"))
+    targetdir (path.join("./build/", action, "lib", "%{cfg.buildcfg}"))
 
     files { "src/*.cs" }
 
-    links { "CppSharp", "CppSharp.AST", "CppSharp.Generator", "CppSharp.Parser", "CppSharp.Parser.CSharp", "CppSharp.Runtime" }
-    dependson { "CppSharp", "CppSharp.AST", "CppSharp.Generator", "CppSharp.Parser", "CppSharp.Parser.CSharp", "CppSharp.Runtime" }
+    links { "CppSharp", "CppSharp.AST", "CppSharp.Generator", "CppSharp.Parser", "CppSharp.Parser.CLI", "CppSharp.Runtime" }
+    dependson { "CppSharp", "CppSharp.AST", "CppSharp.Generator", "CppSharp.Parser", "CppSharp.Parser.CLI", "CppSharp.Runtime" }

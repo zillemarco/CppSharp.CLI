@@ -20,6 +20,10 @@ if "%C%"=="0" goto clean
 goto quit
 
 :vs2015
+set currentDir=%cd%
+cd CppSharp/build
+call DownloadDeps.bat
+cd %currentDir%
 "CppSharp/build/premake5" --file=premake5.lua vs2015
 goto quit
 

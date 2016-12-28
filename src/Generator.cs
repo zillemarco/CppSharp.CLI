@@ -52,9 +52,9 @@ namespace Generator
                 throw new NotSupportedException("Input library name is empty");
 
             if (_options.Architecture == TargetArchitecture.x64)
-                _triple = "x64-";
+                _triple = "x86_64-";
             else if(_options.Architecture == TargetArchitecture.x86)
-                _triple = "x86-";
+                _triple = "i686-";
 
             if (_options.Platform == TargetPlatform.Windows)
             {
@@ -178,10 +178,10 @@ namespace Generator
 
         public void SetupPasses(Driver driver)
         {
-            driver.AddTranslationUnitPass(new CheckMacroPass());
+            //driver.AddTranslationUnitPass(new CheckMacroPass());
 
-            driver.Context.TranslationUnitPasses.RenameDeclsUpperCase(RenameTargets.Any);
-            driver.Context.TranslationUnitPasses.AddPass(new FunctionToInstanceMethodPass());
+            //driver.Context.TranslationUnitPasses.RenameDeclsUpperCase(RenameTargets.Any);
+            //driver.Context.TranslationUnitPasses.AddPass(new FunctionToInstanceMethodPass());
             driver.Context.TranslationUnitPasses.AddPass(new MarshalPrimitivePointersAsRefTypePass());
         }
 
@@ -191,10 +191,10 @@ namespace Generator
 
         public void Postprocess(Driver driver, ASTContext ctx)
         {
-            new CaseRenamePass(
-                RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate |
-                RenameTargets.Field | RenameTargets.Variable,
-                RenameCasePattern.UpperCamelCase).VisitASTContext(driver.Context.ASTContext);
+            //new CaseRenamePass(
+            //    RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate |
+            //    RenameTargets.Field | RenameTargets.Variable,
+            //    RenameCasePattern.UpperCamelCase).VisitASTContext(driver.Context.ASTContext);
         }
 
         public void Run()
