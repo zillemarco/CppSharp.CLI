@@ -101,8 +101,13 @@ namespace Generator
             if (_triple.Contains("linux"))
                 SetupLinuxOptions(parserOptions);
 
+            Console.WriteLine("\n\nAdding " + (_options.IncludeDirs.Count) + " include dirs\n\n");
+
             foreach (String s in _options.IncludeDirs)
+            {
                 parserOptions.AddIncludeDirs(s);
+                Console.WriteLine("Add include: " + s);
+            }
 
             foreach (String s in _options.LibraryDirs)
                 parserOptions.AddLibraryDirs(s);
@@ -178,11 +183,12 @@ namespace Generator
 
         public void SetupPasses(Driver driver)
         {
-            //driver.AddTranslationUnitPass(new CheckMacroPass());
+            driver.AddTranslationUnitPass(new CheckMacroPass());
 
-            //driver.Context.TranslationUnitPasses.RenameDeclsUpperCase(RenameTargets.Any);
-            //driver.Context.TranslationUnitPasses.AddPass(new FunctionToInstanceMethodPass());
+            driver.Context.TranslationUnitPasses.RenameDeclsUpperCase(RenameTargets.Any);
+            driver.Context.TranslationUnitPasses.AddPass(new FunctionToInstanceMethodPass());
             driver.Context.TranslationUnitPasses.AddPass(new MarshalPrimitivePointersAsRefTypePass());
+            driver.AddTranslationUnitPass(new IgnoreStdFieldsPass());
         }
 
         public void Preprocess(Driver driver, ASTContext ctx)
@@ -191,10 +197,17 @@ namespace Generator
 
         public void Postprocess(Driver driver, ASTContext ctx)
         {
-            //new CaseRenamePass(
-            //    RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate |
-            //    RenameTargets.Field | RenameTargets.Variable,
-            //    RenameCasePattern.UpperCamelCase).VisitASTContext(driver.Context.ASTContext);
+            //ctx.IgnoreClassWithName("PluginInfo");
+            //ctx.IgnoreClassWithName("CreatedPlugin");
+            //ctx.IgnoreClassWithName("ModuleDependencyInfo");
+            //ctx.IgnoreClassWithName("ModuleBinaryInfo");
+            //ctx.IgnoreClassWithName("ModuleInfo");
+            //ctx.IgnoreClassWithName("LoadModuleResult");
+
+            new CaseRenamePass(
+                RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate |
+                RenameTargets.Field | RenameTargets.Variable,
+                RenameCasePattern.UpperCamelCase).VisitASTContext(driver.Context.ASTContext);
         }
 
         public void Run()
@@ -250,6 +263,42 @@ namespace Generator
             ConsoleDriver.Run(this);
 
             Console.WriteLine();
+        }
+    }
+    
+    public class IgnoreStdFieldsPass : TranslationUnitPass
+    {
+        public override bool VisitFieldDecl(Field field)
+        {
+            if (!field.IsGenerated)
+                return false;
+
+            if (!IsStdType(field.QualifiedType)) return false;
+
+            field.ExplicitlyIgnore();
+            return true;
+        }
+
+        public override bool VisitFunctionDecl(Function function)
+        {
+            if (function.GenerationKind == GenerationKind.None)
+                return false;
+
+            if (function.Parameters.Any(param => IsStdType(param.QualifiedType)))
+            {
+                function.ExplicitlyIgnore();
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool IsStdType(QualifiedType type)
+        {
+            var typePrinter = new CppTypePrinter();
+            var typeName = type.Visit(typePrinter);
+
+            return typeName.Contains("std::");
         }
     }
 }
