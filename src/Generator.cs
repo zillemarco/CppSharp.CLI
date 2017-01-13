@@ -10,7 +10,7 @@ using CppAbi = CppSharp.Parser.AST.CppAbi;
 using CppSharp.Parser;
 using CppSharp;
 
-namespace Generator
+namespace CppSharp
 {
     class Generator : ILibrary
     {
@@ -118,7 +118,6 @@ namespace Generator
             options.OutputDir = _options.OutputDir;
             options.OutputNamespace = _options.OutputNamespace;
             options.CheckSymbols = _options.CheckSymbols;
-            //options.Verbose = _options.Verbose;
             options.UnityBuild = _options.UnityBuild;
         }
 
@@ -188,7 +187,6 @@ namespace Generator
             driver.Context.TranslationUnitPasses.RenameDeclsUpperCase(RenameTargets.Any);
             driver.Context.TranslationUnitPasses.AddPass(new FunctionToInstanceMethodPass());
             driver.Context.TranslationUnitPasses.AddPass(new MarshalPrimitivePointersAsRefTypePass());
-            driver.AddTranslationUnitPass(new IgnoreStdFieldsPass());
         }
 
         public void Preprocess(Driver driver, ASTContext ctx)
@@ -197,13 +195,6 @@ namespace Generator
 
         public void Postprocess(Driver driver, ASTContext ctx)
         {
-            //ctx.IgnoreClassWithName("PluginInfo");
-            //ctx.IgnoreClassWithName("CreatedPlugin");
-            //ctx.IgnoreClassWithName("ModuleDependencyInfo");
-            //ctx.IgnoreClassWithName("ModuleBinaryInfo");
-            //ctx.IgnoreClassWithName("ModuleInfo");
-            //ctx.IgnoreClassWithName("LoadModuleResult");
-
             new CaseRenamePass(
                 RenameTargets.Function | RenameTargets.Method | RenameTargets.Property | RenameTargets.Delegate |
                 RenameTargets.Field | RenameTargets.Variable,
@@ -263,42 +254,6 @@ namespace Generator
             ConsoleDriver.Run(this);
 
             Console.WriteLine();
-        }
-    }
-    
-    public class IgnoreStdFieldsPass : TranslationUnitPass
-    {
-        public override bool VisitFieldDecl(Field field)
-        {
-            if (!field.IsGenerated)
-                return false;
-
-            if (!IsStdType(field.QualifiedType)) return false;
-
-            field.ExplicitlyIgnore();
-            return true;
-        }
-
-        public override bool VisitFunctionDecl(Function function)
-        {
-            if (function.GenerationKind == GenerationKind.None)
-                return false;
-
-            if (function.Parameters.Any(param => IsStdType(param.QualifiedType)))
-            {
-                function.ExplicitlyIgnore();
-                return false;
-            }
-
-            return true;
-        }
-
-        private bool IsStdType(QualifiedType type)
-        {
-            var typePrinter = new CppTypePrinter();
-            var typeName = type.Visit(typePrinter);
-
-            return typeName.Contains("std::");
         }
     }
 }

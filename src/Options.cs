@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using CppSharp.Generators;
 
-namespace Generator
+namespace CppSharp
 {
     enum TargetPlatform
     {

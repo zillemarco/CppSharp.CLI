@@ -5,9 +5,9 @@ using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Generator
+namespace CppSharp
 {
-    class CSharpGenerator
+    class CLI
     {
         private static Options _options = new Options();
         private static List<string> _assemblies;
@@ -37,7 +37,6 @@ namespace Generator
                 { "p|platform=", "the platform that the generated code will target: 'win', 'osx', 'linux'", p => { GetDestinationPlatform(p); } },
                 { "a|arch=", "the architecture that the generated code will target: 'x86', 'x64'", a => { GetDestinationArchitecture(a); } },
                 { "c++11", "enables GCC C++ 11 compilation (valid only for Linux platform)", cpp11 => { _options.Cpp11ABI = (cpp11 != null); } },
-                //{ "v|verbose", "enable verbose generation of the code", v => { _options.Verbose = (v != null); } },
                 { "cs|checksymbols", "enable the symbol check for the generated code", cs => { _options.CheckSymbols = (cs != null); } },
                 { "ub|unitybuild", "enable unity build", ub => { _options.UnityBuild = (ub != null); } },
                 { "help", "shows the help", hl => { showHelp = (hl != null); } }

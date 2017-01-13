@@ -5,7 +5,7 @@
 dofile "CppSharp/build/Helpers.lua"
 dofile "CppSharp/build/LLVM.lua"
 
-solution "CSharpGenerator"
+solution "CppSharp.CLI"
 
   configurations { "Debug", "Release" }
   architecture "x86_64"
@@ -44,7 +44,7 @@ solution "CSharpGenerator"
     include("CppSharp/src/Runtime")
 
   group ""
-  project "Generator"
+  project "CppSharp.CLI"
     kind "ConsoleApp"
     language "C#"
     dotnetframework "4.6"
