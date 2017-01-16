@@ -31,7 +31,7 @@ solution "CppSharp.CLI"
   objdir (path.join("./build/", action, "obj"))
   targetdir (path.join("./build/", action, "lib", "%{cfg.buildcfg}"))
 
-  startproject "Generator"
+  startproject "CppSharp.CLI"
 
   group "CppSharp"
     include("CppSharp/src/Core")
